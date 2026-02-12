@@ -13,7 +13,7 @@ public class MoviesStore implements MoviesManager {
 
     private int generatedId = 0;
 
-    protected int generateId() {
+    private int generateId() {
         return ++generatedId;
     }
 
