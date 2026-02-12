@@ -11,11 +11,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public abstract class BaseHttpHandler implements HttpHandler {
-    protected MoviesStore store;
-
-    public BaseHttpHandler(MoviesStore store) {
-        this.store = store;
-    }
 
     protected static final String CT_JSON = "application/json; charset=UTF-8";
 
