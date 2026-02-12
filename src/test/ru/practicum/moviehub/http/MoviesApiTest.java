@@ -1,10 +1,7 @@
 package ru.practicum.moviehub.http;
 
 import com.google.gson.Gson;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import ru.practicum.moviehub.model.Movie;
 import ru.practicum.moviehub.store.MoviesStore;
 
@@ -37,8 +34,8 @@ public class MoviesApiTest {
                 .build();
     }
 
-    @BeforeEach
-    void beforeEach() {
+    @AfterEach
+    void afterEach() {
         moviesStore.clear();
     }
 
