@@ -27,35 +27,41 @@ public class MovieHandler extends BaseHttpHandler {
         }
     }
 
-    private void handleCommonMovieById(HttpExchange ex, boolean isDelete) throws IOException {
-        String path = ex.getRequestURI().getPath();
-        String idStr = path.substring(path.lastIndexOf('/') + 1);
-
+    private void handleDeleteMovieById(HttpExchange ex) throws IOException {
         try {
-            int id = Integer.parseInt(idStr);
+            int id = receivingIdByRequest(ex);
             Movie movie = store.getById(id);
 
             if (movie == null) {
                 sendErrorToJson(ex, 404, new ErrorResponse("Фильм не найден"));
             } else {
-                if (isDelete) {
-                    store.delete(id);
-                    sendNoContent(ex);
-                } else {
-                    String json = new Gson().toJson(movie);
-                    sendJson(ex, 200, json);
-                }
+                store.delete(id);
+                sendNoContent(ex);
             }
         } catch (NumberFormatException e) {
             sendErrorToJson(ex, 400, new ErrorResponse("Некорректный ID"));
         }
     }
 
-    private void handleDeleteMovieById(HttpExchange ex) throws IOException {
-        handleCommonMovieById(ex, true);
+    private void handleGetMovieById(HttpExchange ex) throws IOException {
+        try {
+            int id = receivingIdByRequest(ex);
+            Movie movie = store.getById(id);
+
+            if (movie == null) {
+                sendErrorToJson(ex, 404, new ErrorResponse("Фильм не найден"));
+            } else {
+                String json = new Gson().toJson(movie);
+                sendJson(ex, 200, json);
+            }
+        } catch (NumberFormatException e) {
+            sendErrorToJson(ex, 400, new ErrorResponse("Некорректный ID"));
+        }
     }
 
-    private void handleGetMovieById(HttpExchange ex) throws IOException {
-        handleCommonMovieById(ex, false);
+    private int receivingIdByRequest(HttpExchange ex) {
+        String path = ex.getRequestURI().getPath();
+        String idStr = path.substring(path.lastIndexOf('/') + 1);
+        return Integer.parseInt(idStr);
     }
 }
