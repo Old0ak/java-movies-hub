@@ -10,8 +10,10 @@ import java.io.IOException;
 
 public class MovieHandler extends BaseHttpHandler {
 
+    private final MoviesStore store;
+
     public MovieHandler(MoviesStore store) {
-        super(store);
+        this.store = store;
     }
 
     @Override
