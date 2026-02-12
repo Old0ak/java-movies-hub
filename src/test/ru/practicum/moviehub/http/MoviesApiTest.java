@@ -44,6 +44,24 @@ public class MoviesApiTest {
         server.stop();
     }
 
+    private HttpResponse<String> sendHttpRequest(URI uri, String method, String body, String contentType) throws Exception {
+        HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
+                .uri(uri)
+                .header("Content-Type", contentType);
+
+        if ("POST".equals(method)) {
+            requestBuilder.POST(HttpRequest.BodyPublishers.ofString(body));
+        } else if ("GET".equals(method)) {
+            requestBuilder.GET();
+        } else if ("DELETE".equals(method)) {
+            requestBuilder.DELETE();
+        }
+
+        HttpRequest request = requestBuilder.build();
+
+        return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+    }
+
     @Test
     void getMovies_whenEmpty_returnsEmptyArray() throws Exception {
         HttpRequest req = HttpRequest.newBuilder()
