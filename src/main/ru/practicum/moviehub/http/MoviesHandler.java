@@ -42,7 +42,7 @@ public class MoviesHandler extends BaseHttpHandler {
 
         StringBuilder requestBodyBuilder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(ex.getRequestBody(), StandardCharsets.UTF_8))){
+                new InputStreamReader(ex.getRequestBody(), StandardCharsets.UTF_8))) {
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -129,18 +129,18 @@ public class MoviesHandler extends BaseHttpHandler {
     }
 
     private void getMoviesByYear(HttpExchange ex, String query) throws IOException {
-            String yearParam = getParameter(query, "year");
-            if (yearParam != null) {
-                int year = Integer.parseInt(yearParam);
-                if (isValidYear(year)) {
-                    List<Movie> movies = store.filterByYear(year);
-                    String json = new Gson().toJson(movies);
-                    sendJson(ex, 200, json);
-                } else {
-                    sendErrorToJson(ex, 400, new ErrorResponse("Год должен быть между 1888 и текущим годом"));
-                }
+        String yearParam = getParameter(query, "year");
+        if (yearParam != null) {
+            int year = Integer.parseInt(yearParam);
+            if (isValidYear(year)) {
+                List<Movie> movies = store.filterByYear(year);
+                String json = new Gson().toJson(movies);
+                sendJson(ex, 200, json);
             } else {
-                sendErrorToJson(ex, 400, new ErrorResponse("Некорректный параметр запроса — 'year'"));
+                sendErrorToJson(ex, 400, new ErrorResponse("Год должен быть между 1888 и текущим годом"));
             }
+        } else {
+            sendErrorToJson(ex, 400, new ErrorResponse("Некорректный параметр запроса — 'year'"));
+        }
     }
 }
