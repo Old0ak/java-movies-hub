@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.moviehub.api.ErrorResponse;
-import ru.practicum.moviehub.store.MoviesStore;
 
 import java.io.IOException;
 import java.io.OutputStream;
