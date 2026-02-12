@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MoviesHandler extends BaseHttpHandler {
@@ -39,39 +40,47 @@ public class MoviesHandler extends BaseHttpHandler {
             return;
         }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(ex.getRequestBody(), StandardCharsets.UTF_8));
         StringBuilder requestBodyBuilder = new StringBuilder();
-        String line;
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(ex.getRequestBody(), StandardCharsets.UTF_8))){
+            String line;
 
-        while ((line = reader.readLine()) != null) {
-            requestBodyBuilder.append(line);
+            while ((line = reader.readLine()) != null) {
+                requestBodyBuilder.append(line);
+            }
         }
 
         String requestBody = requestBodyBuilder.toString();
-
         Movie movie = new Gson().fromJson(requestBody, Movie.class);
 
         if (isAlreadyAddedMovie(ex, movie)) {
             return;
         }
 
-        if (isSuccessValidation(movie)) {
+        List<String> validatorErrors = validateMovie(movie);
+
+        if (validatorErrors.isEmpty()) {
             store.add(movie);
             String json = new Gson().toJson(movie);
-
             sendJson(ex, 201, json);
         } else {
             ErrorResponse errorResponse = new ErrorResponse("Ошибка валидации");
-
-            if (movie.getTitle() == null || movie.getTitle().isBlank()) {
-                errorResponse.addDetails("название не должно быть пустым");
-            }
-            if (!(movie.getYear() >= 1888 && movie.getYear() <= LocalDate.now().getYear() + 1)) {
-                errorResponse.addDetails("год должен быть между 1888 и " + (LocalDate.now().getYear() + 1));
-            }
-
+            errorResponse.setDetails(validatorErrors);
             sendErrorToJson(ex, 422, errorResponse);
         }
+    }
+
+    private List<String> validateMovie(Movie movie) {
+        List<String> errors = new ArrayList<>();
+
+        if (movie.getTitle() == null || movie.getTitle().isBlank()) {
+            errors.add("название не должно быть пустым");
+        }
+        if (!(movie.getYear() >= 1888 && movie.getYear() <= LocalDate.now().getYear() + 1)) {
+            errors.add("год должен быть между 1888 и " + (LocalDate.now().getYear() + 1));
+        }
+
+        return errors;
     }
 
     private void handleGetMovies(HttpExchange ex) throws IOException {
@@ -102,11 +111,6 @@ public class MoviesHandler extends BaseHttpHandler {
             }
         }
         return false;
-    }
-
-    private boolean isSuccessValidation(Movie movie) {
-        return (movie.getTitle() != null && !movie.getTitle().isBlank() && movie.getTitle().length() <= 100) &&
-                (movie.getYear() >= 1888 && movie.getYear() <= LocalDate.now().getYear() + 1);
     }
 
     private String getParameter(String query, String paramName) {
